@@ -131,7 +131,7 @@ foreach ($data as $row) {
         null, // Variant Tax Code
         $row['EAN'], // Variant Barcode
         null, // Variant Image
-        null, // Variant Inventory Tracker
+        'shopify', // Variant Inventory Tracker
         null, // Variant Inventory Policy
         null, // Variant Fulfillment Service
         $row['Stock Value'], // Variant Inventory Qty
