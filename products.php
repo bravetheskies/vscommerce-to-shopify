@@ -72,9 +72,12 @@ $export = array(array(
 ));
 
 foreach ($data as $row) {
-    $handle = trim( end( explode('/', $row['Parent Product Url']) ) );
+    $url = explode('/', $row['Parent Product Url']);
+    $handle = trim( end( $url ) );
     $images = implode(';', explode(PHP_EOL, $row['Parent Product Images']));
-    $product_type = trim( end( explode('>', reset( explode( ',', $row['Categories'] ) ) ) ) );
+    $categories = explode(',', $row['Categories']);
+    $categories_parts = explode('>', reset( $categories ));
+    $product_type = trim( end( $categories_parts ) );
 
     $option1name = null;
     $option1value = null;
@@ -84,6 +87,29 @@ foreach ($data as $row) {
         $option1value = $row['Attribute 1 (Size)'];
     }
 
+    # Tags
+    $tag_array = array();
+
+    ## Colour tags
+    if ($row['Tag 2 (Colour)']) {
+        $colour_tags = explode( ',', $row['Tag 2 (Colour)']);
+
+        foreach ($colour_tags as &$value) {
+            $tag_array[] = 'Colour:' . trim($value);
+        }
+    }
+
+    ## Style tags
+    if ($row['Tag 1 (Style)']) {
+        $colour_tags = explode( ',', $row['Tag 1 (Style)']);
+
+        foreach ($colour_tags as &$value) {
+            $tag_array[] = 'Style:' . trim($value);
+        }
+    }
+
+    $tags = implode( ', ', $tag_array );
+
     $export[] = array(
         null, // ID
         $handle, // Handle
@@ -92,8 +118,8 @@ foreach ($data as $row) {
         $row['Product Summary'], // Body HTML
         $row['Brand'], // Vendor
         $product_type, // Type
-        null, // Tags
-        null, // Tags Command
+        $tags, // Tags
+        'REPLACE', // Tags Command
         null, // Updated At
         null, // Published
         null, // Published At
