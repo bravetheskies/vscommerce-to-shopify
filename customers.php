@@ -1,6 +1,8 @@
 <?php
 
 include('functions/csv.php');
+include('functions/phone.php');
+include('functions/country.php');
 
 $input_args = getopt('f:');
 
@@ -52,22 +54,39 @@ $export = array(array(
     'Send Account Activation Email',
     'Send Welcome Email',
     'Password',
-    'Multipass Identifier',
-    'Metafield: checkbox_field',
-    'Metafield: integer_field',
-    'Metafield: string_field',
-    'Metafield: birthday'
+    'Multipass Identifier'
 ));
 
 foreach ($data as $row) {
-    
+
+    # Phone
+    $phone = null;
+    if (validate_phone_number($row['Phone'])) {
+        $phone = $row['Phone']; # TODO: Needs to do something with numbers missing a +
+    }
+
+    # Tags
+    $tag_array = array();
+
+    if ($row['Email Opt In']) {
+        $tag_array[] = 'Email Opt In:' . $row['Email Opt In'];
+    }
+
+    $tags = implode(',', $tag_array);
+
+    # Country
+    $country = null;
+    if (array_key_exists('Country', $row)) {
+        $country = lookup_country($row['Country']);
+    }
+
     $export[] = array(
         null, // ID
-        null, // Email
-        null, // Command
-        null, // First Name
-        null, // Last Name
-        null, // Phone
+        $row['Email'], // Email
+        'UPDATE', // Command
+        $row['Firstname'], // First Name
+        $row['Surname'], // Last Name
+        $phone, // Phone
         null, // State
         null, // Accepts Marketing
         null, // Created At
@@ -75,8 +94,8 @@ foreach ($data as $row) {
         null, // Note
         null, // Verified Email
         null, // Tax Exempt
-        null, // Tags
-        null, // Tags Command
+        $tags, // Tags
+        'REPLACE', // Tags Command
         null, // Total Spent
         null, // Total Orders
         null, // Last Order: Name
@@ -84,28 +103,24 @@ foreach ($data as $row) {
         null, // Top Row
         null, // Address ID
         null, // Address Command
-        null, // Address First Name
-        null, // Address Last Name
-        null, // Address Phone
-        null, // Address Company
-        null, // Address Line 1
-        null, // Address Line 2
-        null, // Address City
-        null, // Address Province
+        $row['Firstname'], // Address First Name
+        $row['Surname'], // Address Last Name
+        $phone, // Address Phone
+        $row['Company Name'], // Address Company
+        $row['Address1'], // Address Line 1
+        $row['Address2'], // Address Line 2
+        $row['Town'], // Address City
+        $row['County'], // Address Province
         null, // Address Province Code
-        null, // Address Country
+        $country, // Address Country
         null, // Address Country Code
-        null, // Address Zip
+        $row['Post Code'], // Address Zip
         null, // Address Is Default
         null, // Account Activation URL
         null, // Send Account Activation Email
         null, // Send Welcome Email
         null, // Password
-        null, // Multipass Identifier
-        null, // Metafield: checkbox_field
-        null, // Metafield: integer_field
-        null, // Metafield: string_field
-        null, // Metafield: birthday
+        null // Multipass Identifier
     );
 }
 
