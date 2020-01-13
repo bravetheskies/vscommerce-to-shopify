@@ -1,6 +1,6 @@
 <?php
 
-function getCsvAsAssArray($filename) {
+function getCsvAsAssArray($filename) { // Why are we not using str_getcsv()? I don't remember
     $assoc_array = [];
     if (($handle = fopen($filename, "r")) !== false) { // open for reading
         if (($data = fgetcsv($handle, 0, ",")) !== false) { // extract header data
