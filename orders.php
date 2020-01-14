@@ -205,6 +205,7 @@ foreach ($data as $element) {
     }
 
     # Email marketing
+    $accepts_marketing = false;
     if ( $element->customer->email_opt_in == "Us" ) {
         $accepts_marketing = true;
     } else {
@@ -212,6 +213,8 @@ foreach ($data as $element) {
     }
 
     # City
+    $customer_billing_city = null;
+    $customer_shipping_city = null;
     if (!empty($element->customer->billing_city)) {
         $customer_billing_city = $element->customer->billing_city;
     } else {
@@ -234,6 +237,8 @@ foreach ($data as $element) {
     }
 
     # Last name
+    $customer_billing_lastname = null;
+    $customer_shipping_lastname = null;
     if (empty($element->customer->billing_lastname)) {
         $customer_billing_lastname = '-';
     } else {
@@ -249,7 +254,7 @@ foreach ($data as $element) {
     $phoneUtil = PhoneNumberUtil::getInstance();
 
     ## Billing phone
-
+    $customer_billing_phone = null;
     $billing_country_code = country_name_to_code($customer_billing_country);
 
     if (!$billing_country_code) {
@@ -264,12 +269,10 @@ foreach ($data as $element) {
             echo "Issue with phone: " . $element->customer->billing_telephone . " in country " . $billing_country_code . PHP_EOL;
             echo $e . PHP_EOL;
         }
-    } else {
-        $customer_billing_phone = null;
     }
 
     ## Shipping phone
-
+    $customer_shipping_phone = null;
     $shipping_country_code = country_name_to_code($customer_shipping_country);
 
     if (!$shipping_country_code) {
@@ -284,8 +287,39 @@ foreach ($data as $element) {
             echo "Issue with phone: " . $element->customer->delivery_telephone . " in country " . $shipping_country_code . PHP_EOL;
             echo $e . PHP_EOL;
         }
-    } else {
-        $customer_shipping_phone = null;
+    }
+
+    # Order status
+    $payment_status = null;
+    $fulfillment_status = null;
+    $requires_shipping = null;
+
+    switch ($element->order->order_state) {
+        case "Order Dispatched":
+            $payment_status = "paid";
+            $fulfillment_status = "success";
+            $requires_shipping = 1;
+            break;
+        case "Payment Received":
+            $payment_status = "paid";
+            $requires_shipping = 1;
+            break;
+        case "Payment Failed":
+        case "Order Cancelled":
+            $payment_status = "voided";
+            $fulfillment_status = "cancelled";
+            break;
+        case "Order Refunded":
+            $payment_status = "refunded";
+            break;
+        case "Order Incomplete":
+            $payment_status = "pending";
+            $fulfillment_status = "pending";
+            $requires_shipping = 1;
+            break;
+        case "Order Partially Refunded":
+            $payment_status = "partially_refunded";
+            break;
     }
 
     # Create CSV
@@ -316,7 +350,7 @@ foreach ($data as $element) {
                 null, // Processed At
                 null, // Closed At
                 $element->order->order_currency, // Currency
-                $element->order->order_type, // Source
+                'vscommerce_' . $element->order->order_type, // Source
                 null, // User ID
                 null, // Checkout ID
                 null, // Cart Token
@@ -337,9 +371,9 @@ foreach ($data as $element) {
                 null, // Tax: Included
                 $element->order->grand_total_vat, // Tax: Total
                 $element->order->grand_total_inc, // Price: Total
-                null, // Payment: Status
+                $payment_status, // Payment: Status
                 $element->payment->payment_type, // Payment: Processing Method
-                null, // Order Fulfillment Status
+                $fulfillment_status, // Order Fulfillment Status
                 null, // Additional Details
                 null, // Customer: ID
                 $element->customer->email_address, // Customer: Email
@@ -406,7 +440,7 @@ foreach ($data as $element) {
                 null, // Line: Discount
                 $product->price_inc, // Line: Total
                 $product->weight, // Line: Grams
-                null, // Line: Requires Shipping
+                $requires_shipping, // Line: Requires Shipping
                 null, // Line: Vendor
                 $product->attribute_summary, // Line: Properties
                 null, // Line: Gift Card
@@ -422,7 +456,7 @@ foreach ($data as $element) {
                 null, // Line: Tax 3 Price
                 null, // Line: Fulfillable Quantity
                 null, // Line: Fulfillment Service
-                null, // Line: Fulfillment Status
+                $fulfillment_status, // Line: Fulfillment Status
                 null, // Shipping Origin: Name
                 null, // Shipping Origin: Country Code
                 null, // Shipping Origin: Province Code
@@ -458,7 +492,7 @@ foreach ($data as $element) {
                 null, // Risk: Cause Cancel
                 null, // Risk: Message
                 null, // Fulfillment: ID
-                null, // Fulfillment: Status
+                $fulfillment_status, // Fulfillment: Status
                 null, // Fulfillment: Created At
                 null, // Fulfillment: Processed At
                 null, // Fulfillment: Tracking Company
@@ -488,7 +522,7 @@ foreach ($data as $element) {
                 null, // Processed At
                 null, // Closed At
                 $element->order->order_currency, // Currency
-                $element->order->order_type, // Source
+                'vscommerce_' . $element->order->order_type, // Source
                 null, // User ID
                 null, // Checkout ID
                 null, // Cart Token
@@ -509,9 +543,9 @@ foreach ($data as $element) {
                 null, // Tax: Included
                 null, // Tax: Total
                 null, // Price: Total
-                null, // Payment: Status
-                null, // Payment: Processing Method
-                null, // Order Fulfillment Status
+                $payment_status, // Payment: Status
+                $element->payment->payment_type, // Payment: Processing Method
+                $fulfillment_status, // Order Fulfillment Status
                 null, // Additional Details
                 null, // Customer: ID
                 null, // Customer: Email
@@ -578,7 +612,7 @@ foreach ($data as $element) {
                 null, // Line: Discount
                 $product->price_inc, // Line: Total
                 $product->weight, // Line: Grams
-                null, // Line: Requires Shipping
+                $requires_shipping, // Line: Requires Shipping
                 null, // Line: Vendor
                 $product->attribute_summary, // Line: Properties
                 null, // Line: Gift Card
@@ -594,7 +628,7 @@ foreach ($data as $element) {
                 null, // Line: Tax 3 Price
                 null, // Line: Fulfillable Quantity
                 null, // Line: Fulfillment Service
-                null, // Line: Fulfillment Status
+                $fulfillment_status, // Line: Fulfillment Status
                 null, // Shipping Origin: Name
                 null, // Shipping Origin: Country Code
                 null, // Shipping Origin: Province Code
@@ -630,7 +664,7 @@ foreach ($data as $element) {
                 null, // Risk: Cause Cancel
                 null, // Risk: Message
                 null, // Fulfillment: ID
-                null, // Fulfillment: Status
+                $fulfillment_status, // Fulfillment: Status
                 null, // Fulfillment: Created At
                 null, // Fulfillment: Processed At
                 null, // Fulfillment: Tracking Company
