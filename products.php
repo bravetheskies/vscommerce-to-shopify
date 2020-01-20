@@ -66,9 +66,9 @@ $export = array(array(
     'Variant Inventory Adjust',
     'Metafield: description_tag',
     'Metafield: title_tag',
-    'Metafield: specs.range [integer]',
-    'Variant Metafield: something [string]',
-    'Metafield: custom.json [json_string]'
+    //'Metafield: specs.range [integer]',
+    //'Variant Metafield: something [string]',
+    //'Metafield: custom.json [json_string]'
 ));
 
 foreach ($data as $row) {
@@ -121,9 +121,9 @@ foreach ($data as $row) {
         $tags, // Tags
         'REPLACE', // Tags Command
         null, // Updated At
-        null, // Published
+        TRUE, // Published
         null, // Published At
-        null, // Published Scope
+        TRUE, // Published Scope
         null, // Template Suffix
         null, // Custom Collections
         null, // Row #
@@ -164,9 +164,9 @@ foreach ($data as $row) {
         null, // Variant Inventory Adjust
         $row['Meta Description'], // Metafield: description_tag
         $row['Meta Title'], // Metafield: title_tag
-        null, // Metafield: specs.range [integer]
-        null, // Variant Metafield: something [string]
-        null, // Metafield: custom.json [json_string]
+        //null, // Metafield: specs.range [integer]
+        //null, // Variant Metafield: something [string]
+        //null, // Metafield: custom.json [json_string]
     );
 }
 
