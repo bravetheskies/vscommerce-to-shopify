@@ -108,6 +108,13 @@ foreach ($data as $row) {
         }
     }
 
+    # Publish
+    if ($row['Parent Active'] == 'Y') {
+        $published = 'TRUE';
+    } else {
+        $published = 'FALSE';
+    }
+
     $tags = implode( ', ', $tag_array );
 
     $export[] = array(
@@ -121,9 +128,9 @@ foreach ($data as $row) {
         $tags, // Tags
         'REPLACE', // Tags Command
         null, // Updated At
-        TRUE, // Published
+        $published, // Published
         null, // Published At
-        TRUE, // Published Scope
+        $published, // Published Scope
         null, // Template Suffix
         null, // Custom Collections
         null, // Row #
