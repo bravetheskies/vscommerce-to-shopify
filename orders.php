@@ -330,22 +330,26 @@ foreach ($data as $element) {
 
     $count = 0;
 
+    $row_order_template = $empty_row;
+
+    $row_order_template['Name'] = $element->order->order_reference;
+    $row_order_template['Command'] = 'REPLACE';
+    $row_order_template['Send Receipt'] = 0;
+    $row_order_template['Inventory Behaviour'] = 'bypass';
+    $row_order_template['Number'] = $element->order->order_id;
+    $row_order_template['Note'] = $notes;
+    $row_order_template['Tags Command'] = 'REPLACE';
+    $row_order_template['Created At'] = $element->order->order_date;
+    $row_order_template['Currency'] = $element->order->order_currency;
+    $row_order_template['Source'] = 'vscommerce_' . $element->order->order_type;
+
     foreach ($element->products->product as $product) {
         $count++;
         
         if ($count == 1) {
-            $row = $empty_row;
+            # First row of order
+            $row = $row_order_template;
 
-            $row['Name'] = $element->order->order_reference;
-            $row['Command'] = 'REPLACE';
-            $row['Send Receipt'] = 0;
-            $row['Inventory Behaviour'] = 'bypass';
-            $row['Number'] = $element->order->order_id;
-            $row['Note'] = $notes;
-            $row['Tags Command'] = 'REPLACE';
-            $row['Created At'] = $element->order->order_date;
-            $row['Currency'] = $element->order->order_currency;
-            $row['Source'] = 'vscommerce_' . $element->order->order_type;
             $row['Price: Total Line Items'] = $element->order->product_total_inc;
             $row['Tax 1: Title'] = 'VAT';
             $row['Tax 1: Rate'] = 20;
@@ -399,6 +403,8 @@ foreach ($data as $element) {
             $row['Line: Fulfillment Status'] = $fulfillment_status;
             $row['Fulfillment: Status'] = $fulfillment_status;
         } else {
+
+
             $row = array(
                 null, // ID
                 $element->order->order_reference, // Name
