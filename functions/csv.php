@@ -23,3 +23,12 @@ function writeDataToCsv($filename, $data) {
         fclose($handle);
     }
 }
+
+function getEmptyRowFromColumns($columns) {
+    $row = array();
+    foreach ($columns as $column) {
+        $row[$column] = null;
+    }
+
+    return $row;
+}

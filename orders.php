@@ -20,7 +20,7 @@ $output_filename = "shopify_ordes_" . str_replace(".xml", ".csv", $input_filenam
 
 $data = simplexml_load_file($input_filename, "SimpleXMLElement");
 
-$export = array(array(
+$columns = array(
     'ID',
     'Name',
     'Command',
@@ -190,7 +190,11 @@ $export = array(array(
     'Fulfillment: Tracking Number',
     'Fulfillment: Tracking URL',
     'Fulfillment: Send Receipt'
-));
+);
+
+$export = array($columns);
+
+$empty_row = getEmptyRowFromColumns($columns);
 
 foreach ($data as $element) {
 
@@ -330,178 +334,70 @@ foreach ($data as $element) {
         $count++;
         
         if ($count == 1) {
+            $row = $empty_row;
 
-            $row = array(
-                null, // ID
-                $element->order->order_reference, // Name
-                'REPLACE', // Command
-                0, // Send Receipt
-                'bypass', // Inventory Behaviour
-                $element->order->order_id, // Number
-                $notes, // Note
-                null, // Tags
-                'REPLACE', // Tags Command
-                $element->order->order_date, // Created At
-                null, // Updated At
-                null, // Cancelled At
-                null, // Cancel: Reason
-                null, // Cancel: Send Receipt
-                null, // Cancel: Refund
-                null, // Processed At
-                null, // Closed At
-                $element->order->order_currency, // Currency
-                'vscommerce_' . $element->order->order_type, // Source
-                null, // User ID
-                null, // Checkout ID
-                null, // Cart Token
-                null, // Token
-                null, // Order Status URL
-                null, // Weight Total
-                $element->order->product_total_inc, // Price: Total Line Items
-                null, // Price: Subtotal
-                'VAT', // Tax 1: Title
-                20, // Tax 1: Rate
-                $element->order->grand_total_vat, // Tax 1: Price
-                null, // Tax 2: Title
-                null, // Tax 2: Rate
-                null, // Tax 2: Price
-                null, // Tax 3: Title
-                null, // Tax 3: Rate
-                null, // Tax 3: Price
-                null, // Tax: Included
-                $element->order->grand_total_vat, // Tax: Total
-                $element->order->grand_total_inc, // Price: Total
-                $payment_status, // Payment: Status
-                $element->payment->payment_type, // Payment: Processing Method
-                $fulfillment_status, // Order Fulfillment Status
-                null, // Additional Details
-                null, // Customer: ID
-                $element->customer->email_address, // Customer: Email
-                $customer_billing_phone, // Customer: Phone
-                $element->customer->billing_firstname, // Customer: First Name
-                $element->customer->billing_lastname, // Customer: Last Name
-                null, // Customer: Note
-                null, // Customer: Orders Count
-                null, // Customer: State
-                null, // Customer: Total Spent
-                null, // Customer: Tags
-                $accepts_marketing, // Customer: Accepts Marketing
-                $element->customer->billing_firstname, // Billing: First Name
-                $customer_billing_lastname, // Billing: Last Name
-                $element->customer->billing_company_name, // Billing: Company
-                $customer_billing_phone, // Billing: Phone
-                $element->customer->billing_address1, // Billing: Address 1
-                $element->customer->billing_address2, // Billing: Address 2
-                $element->customer->billing_postcode, // Billing: Zip
-                $customer_billing_city, // Billing: City
-                $element->customer->delivery_county, // Billing: Province
-                null, // Billing: Province Code
-                $customer_billing_country, // Billing: Country
-                null, // Billing: Country Code
-                $element->customer->delivery_firstname, // Shipping: First Name
-                $customer_shipping_lastname, // Shipping: Last Name
-                $element->customer->delivery_company_name, // Shipping: Company
-                $customer_shipping_phone, // Shipping: Phone
-                $element->customer->delivery_address1, // Shipping: Address 1
-                $element->customer->delivery_address2, // Shipping: Address 2
-                $element->customer->delivery_postcode, // Shipping: Zip
-                $customer_shipping_city, // Shipping: City
-                $element->customer->delivery_county, // Shipping: Province
-                null, // Shipping: Province Code
-                $customer_shipping_country, // Shipping: Country
-                null, // Shipping: Country Code
-                null, // Browser: IP
-                null, // Browser: Width
-                null, // Browser: Height
-                null, // Browser: User Agent
-                null, // Browser: Landing Page
-                null, // Browser: Referrer
-                null, // Browser: Referrer Domain
-                null, // Browser: Search Keywords
-                null, // Browser: Ad URL
-                null, // Browser: UTM Source
-                null, // Browser: UTM Medium
-                null, // Browser: UTM Campaign
-                null, // Browser: UTM Term
-                null, // Browser: UTM Content
-                $count, // Row #
-                1, // Top Row
-                'Line Item', // Line: Type
-                null, // Line: ID
-                null, // Line: Product ID
-                null, // Line: Product Handle
-                $product->title, // Line: Title
-                $product->title, // Line: Name
-                null, // Line: Variant ID
-                $product->summary, // Line: Variant Title
-                $product->reference, // Line: SKU
-                $product->quantity, // Line: Quantity
-                $product->price_ex, // Line: Price
-                null, // Line: Discount
-                $product->price_inc, // Line: Total
-                $product->weight, // Line: Grams
-                $requires_shipping, // Line: Requires Shipping
-                null, // Line: Vendor
-                $product->attribute_summary, // Line: Properties
-                null, // Line: Gift Card
-                null, // Line: Taxable
-                'VAT', // Line: Tax 1 Title
-                0.2, // Line: Tax 1 Rate
-                $product->price_vat, // Line: Tax 1 Price
-                null, // Line: Tax 2 Title
-                null, // Line: Tax 2 Rate
-                null, // Line: Tax 2 Price
-                null, // Line: Tax 3 Title
-                null, // Line: Tax 3 Rate
-                null, // Line: Tax 3 Price
-                null, // Line: Fulfillable Quantity
-                null, // Line: Fulfillment Service
-                $fulfillment_status, // Line: Fulfillment Status
-                null, // Shipping Origin: Name
-                null, // Shipping Origin: Country Code
-                null, // Shipping Origin: Province Code
-                null, // Shipping Origin: City
-                null, // Shipping Origin: Address 1
-                null, // Shipping Origin: Address 2
-                null, // Shipping Origin: Zip
-                null, // Refund: ID
-                null, // Refund: Created At
-                null, // Refund: Note
-                null, // Refund: Restock
-                null, // Refund: Restock Location
-                null, // Refund: Send Receipt
-                null, // Transaction: ID
-                null, // Transaction: Kind
-                null, // Transaction: Processed At
-                null, // Transaction: Amount
-                null, // Transaction: Currency
-                null, // Transaction: Status
-                null, // Transaction: Message
-                null, // Transaction: Gateway
-                null, // Transaction: Test
-                null, // Transaction: Authorization
-                null, // Transaction: Error Code
-                null, // Transaction: CC AVS Result
-                null, // Transaction: CC Bin
-                null, // Transaction: CC CVV Result
-                null, // Transaction: CC Number
-                null, // Transaction: CC Company
-                null, // Risk: Source
-                null, // Risk: Score
-                null, // Risk: Recommendation
-                null, // Risk: Cause Cancel
-                null, // Risk: Message
-                null, // Fulfillment: ID
-                $fulfillment_status, // Fulfillment: Status
-                null, // Fulfillment: Created At
-                null, // Fulfillment: Processed At
-                null, // Fulfillment: Tracking Company
-                null, // Fulfillment: Location
-                null, // Fulfillment: Shipment Status
-                null, // Fulfillment: Tracking Number
-                null, // Fulfillment: Tracking URL
-                null, // Fulfillment: Send Receipt
-            );
+            $row['Name'] = $element->order->order_reference;
+            $row['Command'] = 'REPLACE';
+            $row['Send Receipt'] = 0;
+            $row['Inventory Behaviour'] = 'bypass';
+            $row['Number'] = $element->order->order_id;
+            $row['Note'] = $notes;
+            $row['Tags Command'] = 'REPLACE';
+            $row['Created At'] = $element->order->order_date;
+            $row['Currency'] = $element->order->order_currency;
+            $row['Source'] = 'vscommerce_' . $element->order->order_type;
+            $row['Price: Total Line Items'] = $element->order->product_total_inc;
+            $row['Tax 1: Title'] = 'VAT';
+            $row['Tax 1: Rate'] = 20;
+            $row['Tax 1: Price'] = $element->order->grand_total_vat;
+            $row['Tax: Total'] = $element->order->grand_total_vat;
+            $row['Price: Total'] = $element->order->grand_total_inc;
+            $row['Payment: Status'] = $payment_status;
+            $row['Payment: Processing Method'] = $element->payment->payment_type;
+            $row['Order Fulfillment Status'] = $fulfillment_status;
+            $row['Customer: Email'] = $element->customer->email_address;
+            $row['Customer: Phone'] = $customer_billing_phone;
+            $row['Customer: First Name'] = $element->customer->billing_firstname;
+            $row['Customer: Last Name'] = $element->customer->billing_lastname;
+            $row['Customer: Accepts Marketing'] = $accepts_marketing;
+            $row['Billing: First Name'] = $element->customer->billing_firstname;
+            $row['Billing: Last Name'] = $customer_billing_lastname;
+            $row['Billing: Company'] = $element->customer->billing_company_name;
+            $row['Billing: Phone'] = $customer_billing_phone;
+            $row['Billing: Address 1'] = $element->customer->billing_address1;
+            $row['Billing: Address 2'] = $element->customer->billing_address2;
+            $row['Billing: Zip'] = $element->customer->billing_postcode;
+            $row['Billing: City'] = $customer_billing_city;
+            $row['Billing: Province'] = $element->customer->delivery_county;
+            $row['Billing: Country'] = $customer_billing_country;
+            $row['Shipping: First Name'] = $element->customer->delivery_firstname;
+            $row['Shipping: Last Name'] = $customer_shipping_lastname;
+            $row['Shipping: Company'] = $element->customer->delivery_company_name;
+            $row['Shipping: Phone'] = $customer_shipping_phone;
+            $row['Shipping: Address 1'] = $element->customer->delivery_address1;
+            $row['Shipping: Address 2'] = $element->customer->delivery_address2;
+            $row['Shipping: Zip'] = $element->customer->delivery_postcode;
+            $row['Shipping: City'] = $customer_shipping_city;
+            $row['Shipping: Province'] = $element->customer->delivery_county;
+            $row['Shipping: Country'] = $customer_shipping_country;
+            $row['Row #'] = $count;
+            $row['Top Row'] = 1;
+            $row['Line: Type'] = 'Line Item';
+            $row['Line: Title'] = $product->title;
+            $row['Line: Name'] = $product->title;
+            $row['Line: Variant Title'] = $product->summary;
+            $row['Line: SKU'] = $product->reference;
+            $row['Line: Quantity'] = $product->quantity;
+            $row['Line: Price'] = $product->price_ex;
+            $row['Line: Total'] = $product->price_inc;
+            $row['Line: Grams'] = $product->weight;
+            $row['Line: Requires Shipping'] = $requires_shipping;
+            $row['Line: Properties'] = $product->attribute_summary;
+            $row['Line: Tax 1 Title'] = 'VAT';
+            $row['Line: Tax 1 Rate'] = 0.2;
+            $row['Line: Tax 1 Price'] = $product->price_vat;
+            $row['Line: Fulfillment Status'] = $fulfillment_status;
+            $row['Fulfillment: Status'] = $fulfillment_status;
         } else {
             $row = array(
                 null, // ID
