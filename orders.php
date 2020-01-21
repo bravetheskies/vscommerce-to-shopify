@@ -194,6 +194,8 @@ $columns = array(
 
 $export = array($columns);
 
+$true = 'TRUE';
+$false = 'FALSE';
 $empty_row = getEmptyRowFromColumns($columns);
 
 foreach ($data as $element) {
@@ -342,6 +344,7 @@ foreach ($data as $element) {
     $row_order_template['Created At'] = $element->order->order_date;
     $row_order_template['Currency'] = $element->order->order_currency;
     $row_order_template['Source'] = 'vscommerce_' . $element->order->order_type;
+    $row_order_template['Fulfillment: Send Receipt'] = 0;
 
     foreach ($element->products->product as $product) {
         $count++;
@@ -350,10 +353,12 @@ foreach ($data as $element) {
             # First row of order
             $row = $row_order_template;
 
+            $row['Tags'] = 'Imported from vscommerce';
             $row['Price: Total Line Items'] = $element->order->product_total_inc;
-            $row['Tax 1: Title'] = 'VAT';
-            $row['Tax 1: Rate'] = 20;
-            $row['Tax 1: Price'] = $element->order->grand_total_vat;
+            //$row['Tax 1: Title'] = 'VAT';
+            //$row['Tax 1: Rate'] = 20;
+            //$row['Tax 1: Price'] = $element->order->grand_total_vat;
+            $row['Tax: Included'] = true;
             $row['Tax: Total'] = $element->order->grand_total_vat;
             $row['Price: Total'] = $element->order->grand_total_inc;
             $row['Payment: Status'] = $payment_status;
@@ -363,6 +368,7 @@ foreach ($data as $element) {
             $row['Customer: Phone'] = $customer_billing_phone;
             $row['Customer: First Name'] = $element->customer->billing_firstname;
             $row['Customer: Last Name'] = $element->customer->billing_lastname;
+            $row['Customer: Tags'] = 'Imported from vscommerce';
             $row['Customer: Accepts Marketing'] = $accepts_marketing;
             $row['Billing: First Name'] = $element->customer->billing_firstname;
             $row['Billing: Last Name'] = $customer_billing_lastname;
@@ -392,11 +398,12 @@ foreach ($data as $element) {
             $row['Line: Variant Title'] = $product->summary;
             $row['Line: SKU'] = $product->reference;
             $row['Line: Quantity'] = $product->quantity;
-            $row['Line: Price'] = $product->price_ex;
+            $row['Line: Price'] = $product->price_inc;
             $row['Line: Total'] = $product->price_inc;
             $row['Line: Grams'] = $product->weight;
             $row['Line: Requires Shipping'] = $requires_shipping;
             $row['Line: Properties'] = $product->attribute_summary;
+            $row['Line: Taxable'] = true;
             $row['Line: Tax 1 Title'] = 'VAT';
             $row['Line: Tax 1 Rate'] = 0.2;
             $row['Line: Tax 1 Price'] = $product->price_vat;
@@ -417,17 +424,70 @@ foreach ($data as $element) {
             $row['Line: Variant Title'] = $product->summary;
             $row['Line: SKU'] = $product->reference;
             $row['Line: Quantity'] = $product->quantity;
-            $row['Line: Price'] = $product->price_ex;
+            $row['Line: Price'] = $product->price_inc;
             $row['Line: Total'] = $product->price_inc;
             $row['Line: Grams'] = $product->weight;
             $row['Line: Requires Shipping'] = $requires_shipping;
             $row['Line: Properties'] = $product->attribute_summary;
+            $row['Line: Taxable'] = true;
             $row['Line: Tax 1 Title'] = 'VAT';
             $row['Line: Tax 1 Rate'] = 0.2;
             $row['Line: Tax 1 Price'] = $product->price_vat;
             $row['Line: Fulfillment Status'] = $fulfillment_status;
             $row['Fulfillment: Status'] = $fulfillment_status;
         }
+
+        $export[] = $row;
+    }
+
+    # Shipping line
+    $row = $row_order_template;
+    $count++;
+
+    $row['Row #'] = $count;
+    $row['Line: Type'] = 'Shipping Line';
+    $row['Line: Title'] = $element->order->courier_name;
+    $row['Line: Name'] = $element->order->courier_name;
+    $row['Line: Price'] = $element->order->shipping_total_inc;
+    $row['Line: Total'] = $element->order->shipping_total_inc;
+    $row['Line: Tax 1 Title'] = 'VAT';
+    $row['Line: Tax 1 Rate'] = 0.2;
+    $row['Line: Tax 1 Price'] = $element->order->shipping_vat;
+
+    $export[] = $row;
+
+    if ( $element->payment->payment_amount > 0) {
+        # Transaction authorization
+        $row = $row_order_template;
+        $count++;
+
+        $row['Row #'] = $count;
+        $row['Line: Type'] = 'Transaction';
+        $row['Transaction: Kind'] = 'authorization';
+        $row['Transaction: Processed At'] = $element->order->order_date;
+        $row['Transaction: Amount'] = $element->payment->payment_amount;
+        $row['Transaction: Currency'] = $element->order->order_currency;
+        $row['Transaction: Status'] = 'success';
+        $row['Transaction: Message'] = $element->payment->notes;
+        $row['Transaction: Gateway'] = null; // manual?
+        $row['Transaction: Authorization'] = $element->payment->auth_code;
+        $row['Transaction: CC CVV Result'] = $element->payment->cv2_avs;
+
+        $export[] = $row;
+
+        # Transaction capture
+        $row = $row_order_template;
+        $count++;
+
+        $row['Row #'] = $count;
+        $row['Line: Type'] = 'Transaction';
+        $row['Transaction: Kind'] = 'capture';
+        $row['Transaction: Processed At'] = $element->order->order_date;
+        $row['Transaction: Amount'] = $element->payment->payment_amount;
+        $row['Transaction: Currency'] = $element->order->order_currency;
+        $row['Transaction: Status'] = 'success';
+        $row['Transaction: Message'] = $element->payment->notes;
+        $row['Transaction: Gateway'] = null; // manual?
 
         $export[] = $row;
     }
