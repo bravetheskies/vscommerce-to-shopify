@@ -71,6 +71,7 @@ foreach ($data as $row) {
     if ($row['Email Opt In']) {
         $tag_array[] = 'Email Opt In:' . $row['Email Opt In'];
     }
+    $tag_array[] = 'Imported from vscommerce';
 
     $tags = implode(',', $tag_array);
 

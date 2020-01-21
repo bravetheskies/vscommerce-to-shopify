@@ -491,6 +491,8 @@ foreach ($data as $element) {
 
         $export[] = $row;
     }
+
+    
 }
 
 writeDataToCsv($output_filename, $export);
