@@ -2,10 +2,14 @@
 
 include('functions/csv.php');
 
-$input_args = getopt('f:');
+$input_args = getopt('s::f:');
 
 if (!$input_args['f']) {
    die("No file selected, use -f filename.csv\n");
+}
+
+if (isset($input_args['s'])) {
+    echo "Split tag provided, splitting name into Vendor and Title by '-'" . PHP_EOL;
 }
 
 $input_filename = $input_args['f'];
@@ -87,6 +91,18 @@ foreach ($data as $row) {
         $option1value = $row['Attribute 1 (Size)'];
     }
 
+    # Name and vendor
+    $product_title = $row['Parent Product Title'];
+    $vendor = $row['Brand'];
+    if (isset($input_args['s'])) {
+        $split_text = " - ";
+        $nameandvendor = explode($split_text, $row['Parent Product Title']);
+        if (isset($nameandvendor[1])) {
+            $vendor = $nameandvendor[0];
+            $product_title = $nameandvendor[1];
+        }
+    }
+
     # Tags
     $tag_array = array();
 
@@ -111,8 +127,10 @@ foreach ($data as $row) {
     # Publish
     if ($row['Parent Active'] == 'Y') {
         $published = 'TRUE';
+        $published_scope = 'global';
     } else {
         $published = 'FALSE';
+        $published_scope = 'web';
     }
 
     $tags = implode( ', ', $tag_array );
@@ -121,16 +139,16 @@ foreach ($data as $row) {
         null, // ID
         $handle, // Handle
         'UPDATE', // Command
-        $row['Parent Product Title'], // Title
+        $product_title, // Title
         $row['Product Summary'], // Body HTML
-        $row['Brand'], // Vendor
+        $vendor, // Vendor
         $product_type, // Type
         $tags, // Tags
         'REPLACE', // Tags Command
         null, // Updated At
         $published, // Published
         null, // Published At
-        $published, // Published Scope
+        $published_scope, // Published Scope
         null, // Template Suffix
         null, // Custom Collections
         null, // Row #
@@ -165,8 +183,8 @@ foreach ($data as $row) {
         $row['EAN'], // Variant Barcode
         null, // Variant Image
         'shopify', // Variant Inventory Tracker
-        null, // Variant Inventory Policy
-        null, // Variant Fulfillment Service
+        'deny', // Variant Inventory Policy
+        'manual', // Variant Fulfillment Service
         $row['Stock Value'], // Variant Inventory Qty
         null, // Variant Inventory Adjust
         $row['Meta Description'], // Metafield: description_tag
@@ -178,3 +196,5 @@ foreach ($data as $row) {
 }
 
 writeDataToCsv($output_filename, $export);
+
+echo "File " . $output_filename . " written." . PHP_EOL;
