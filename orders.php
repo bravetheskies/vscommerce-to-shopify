@@ -469,7 +469,7 @@ foreach ($data as $element) {
         $row['Transaction: Currency'] = $element->order->order_currency;
         $row['Transaction: Status'] = 'success';
         $row['Transaction: Message'] = $element->payment->notes;
-        $row['Transaction: Gateway'] = null; // manual?
+        $row['Transaction: Gateway'] = $element->payment->payment_type;
         $row['Transaction: Authorization'] = $element->payment->auth_code;
         $row['Transaction: CC CVV Result'] = $element->payment->cv2_avs;
 

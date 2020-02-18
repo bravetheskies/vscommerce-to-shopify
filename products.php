@@ -140,7 +140,7 @@ foreach ($data as $row) {
         $handle, // Handle
         'UPDATE', // Command
         $product_title, // Title
-        $row['Product Summary'], // Body HTML
+        $row['Product Summary'] . "\n" . $row['Product Description'], // Body HTML
         $vendor, // Vendor
         $product_type, // Type
         $tags, // Tags
