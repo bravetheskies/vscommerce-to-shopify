@@ -124,6 +124,11 @@ foreach ($data as $row) {
         }
     }
 
+    ## Size tags
+    if ($row['Attribute 1 (Size)']) {
+        $tag_array[] = 'Size:' . trim($row['Attribute 1 (Size)']);
+    }
+
     # Publish
     if ($row['Parent Active'] == 'Y') {
         $published = 'TRUE';

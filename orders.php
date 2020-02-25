@@ -16,7 +16,7 @@ if (!$input_args['f']) {
 }
 
 $input_filename = $input_args['f'];
-$output_filename = "shopify_ordes_" . str_replace(".xml", ".csv", $input_filename);
+$output_filename = "shopify_orders_" . str_replace(".xml", ".csv", $input_filename);
 
 $data = simplexml_load_file($input_filename, "SimpleXMLElement");
 
