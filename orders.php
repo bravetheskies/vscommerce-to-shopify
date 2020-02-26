@@ -272,8 +272,10 @@ foreach ($data as $element) {
             $customer_billing_phone = $phoneUtil->parseAndKeepRawInput($element->customer->billing_telephone, $billing_country_code);
             $customer_billing_phone = $phoneUtil->format($customer_billing_phone, PhoneNumberFormat::E164);
         } catch (NumberParseException $e) {
-            echo "Issue with phone: " . $element->customer->billing_telephone . " in country " . $billing_country_code . PHP_EOL;
-            echo $e . PHP_EOL;
+            #echo "Issue with phone: " . $element->customer->billing_telephone . " in country " . $billing_country_code . PHP_EOL;
+            #echo $e . PHP_EOL;
+            $notes .= "\nBilling phone: " . $element->customer->billing_telephone;
+            $customer_billing_phone = NULL;
         }
     }
 
@@ -290,8 +292,10 @@ foreach ($data as $element) {
             $customer_shipping_phone = $phoneUtil->parseAndKeepRawInput($element->customer->delivery_telephone, $shipping_country_code);
             $customer_shipping_phone = $phoneUtil->format($customer_shipping_phone, PhoneNumberFormat::E164);
         } catch (NumberParseException $e) {
-            echo "Issue with phone: " . $element->customer->delivery_telephone . " in country " . $shipping_country_code . PHP_EOL;
-            echo $e . PHP_EOL;
+            #echo "Issue with phone: " . $element->customer->delivery_telephone . " in country " . $shipping_country_code . PHP_EOL;
+            #echo $e . PHP_EOL;
+            $notes .= "\nShipping phone: " . $element->customer->delivery_telephone;
+            $customer_shipping_phone = NULL;
         }
     }
 
@@ -346,96 +350,160 @@ foreach ($data as $element) {
     $row_order_template['Source'] = 'vscommerce_' . $element->order->order_type;
     $row_order_template['Fulfillment: Send Receipt'] = 0;
 
-    foreach ($element->products->product as $product) {
-        $count++;
-        
-        if ($count == 1) {
-            # First row of order
-            $row = $row_order_template;
+    if ($element->products->product) {
+        foreach ($element->products->product as $product) {
+            $count++;
+            
+            if ($count == 1) {
+                # First row of order
+                $row = $row_order_template;
 
-            $row['Tags'] = 'Imported from vscommerce';
-            $row['Price: Total Line Items'] = $element->order->product_total_inc;
-            //$row['Tax 1: Title'] = 'VAT';
-            //$row['Tax 1: Rate'] = 20;
-            //$row['Tax 1: Price'] = $element->order->grand_total_vat;
-            $row['Tax: Included'] = true;
-            $row['Tax: Total'] = $element->order->grand_total_vat;
-            $row['Price: Total'] = $element->order->grand_total_inc;
-            $row['Payment: Status'] = $payment_status;
-            $row['Payment: Processing Method'] = $element->payment->payment_type;
-            $row['Order Fulfillment Status'] = $fulfillment_status;
-            $row['Customer: Email'] = $element->customer->email_address;
-            $row['Customer: Phone'] = $customer_billing_phone;
-            $row['Customer: First Name'] = $element->customer->billing_firstname;
-            $row['Customer: Last Name'] = $element->customer->billing_lastname;
-            $row['Customer: Tags'] = 'Imported from vscommerce';
-            $row['Customer: Accepts Marketing'] = $accepts_marketing;
-            $row['Billing: First Name'] = $element->customer->billing_firstname;
-            $row['Billing: Last Name'] = $customer_billing_lastname;
-            $row['Billing: Company'] = $element->customer->billing_company_name;
-            $row['Billing: Phone'] = $customer_billing_phone;
-            $row['Billing: Address 1'] = $element->customer->billing_address1;
-            $row['Billing: Address 2'] = $element->customer->billing_address2;
-            $row['Billing: Zip'] = $element->customer->billing_postcode;
-            $row['Billing: City'] = $customer_billing_city;
-            $row['Billing: Province'] = $element->customer->delivery_county;
-            $row['Billing: Country'] = $customer_billing_country;
-            $row['Shipping: First Name'] = $element->customer->delivery_firstname;
-            $row['Shipping: Last Name'] = $customer_shipping_lastname;
-            $row['Shipping: Company'] = $element->customer->delivery_company_name;
-            $row['Shipping: Phone'] = $customer_shipping_phone;
-            $row['Shipping: Address 1'] = $element->customer->delivery_address1;
-            $row['Shipping: Address 2'] = $element->customer->delivery_address2;
-            $row['Shipping: Zip'] = $element->customer->delivery_postcode;
-            $row['Shipping: City'] = $customer_shipping_city;
-            $row['Shipping: Province'] = $element->customer->delivery_county;
-            $row['Shipping: Country'] = $customer_shipping_country;
-            $row['Row #'] = $count;
-            $row['Top Row'] = 1;
-            $row['Line: Type'] = 'Line Item';
-            $row['Line: Title'] = $product->title;
-            $row['Line: Name'] = $product->title;
-            $row['Line: Variant Title'] = $product->summary;
-            $row['Line: SKU'] = $product->reference;
-            $row['Line: Quantity'] = $product->quantity;
-            $row['Line: Price'] = $product->price_inc;
-            $row['Line: Total'] = $product->price_inc;
-            $row['Line: Grams'] = $product->weight;
-            $row['Line: Requires Shipping'] = $requires_shipping;
-            $row['Line: Properties'] = $product->attribute_summary;
-            $row['Line: Taxable'] = true;
-            $row['Line: Tax 1 Title'] = 'VAT';
-            $row['Line: Tax 1 Rate'] = 0.2;
-            $row['Line: Tax 1 Price'] = $product->price_vat;
-            $row['Line: Fulfillment Status'] = $fulfillment_status;
-            $row['Fulfillment: Status'] = $fulfillment_status;
-        } else {
-            # Product rows of order
-            $row = $row_order_template;
+                $row['Tags'] = 'Imported from vscommerce';
+                $row['Price: Total Line Items'] = $element->order->product_total_inc;
+                //$row['Tax 1: Title'] = 'VAT';
+                //$row['Tax 1: Rate'] = 20;
+                //$row['Tax 1: Price'] = $element->order->grand_total_vat;
+                $row['Tax: Included'] = true;
+                $row['Tax: Total'] = $element->order->grand_total_vat;
+                $row['Price: Total'] = $element->order->grand_total_inc;
+                $row['Payment: Status'] = $payment_status;
+                $row['Payment: Processing Method'] = $element->payment->payment_type;
+                $row['Order Fulfillment Status'] = $fulfillment_status;
+                $row['Customer: Email'] = $element->customer->email_address;
+                $row['Customer: Phone'] = $customer_billing_phone;
+                $row['Customer: First Name'] = $element->customer->billing_firstname;
+                $row['Customer: Last Name'] = $element->customer->billing_lastname;
+                $row['Customer: Tags'] = 'Imported from vscommerce';
+                $row['Customer: Accepts Marketing'] = $accepts_marketing;
+                $row['Billing: First Name'] = $element->customer->billing_firstname;
+                $row['Billing: Last Name'] = $customer_billing_lastname;
+                $row['Billing: Company'] = $element->customer->billing_company_name;
+                $row['Billing: Phone'] = $customer_billing_phone;
+                $row['Billing: Address 1'] = $element->customer->billing_address1;
+                $row['Billing: Address 2'] = $element->customer->billing_address2;
+                $row['Billing: Zip'] = $element->customer->billing_postcode;
+                $row['Billing: City'] = $customer_billing_city;
+                $row['Billing: Province'] = $element->customer->delivery_county;
+                $row['Billing: Country'] = $customer_billing_country;
+                $row['Shipping: First Name'] = $element->customer->delivery_firstname;
+                $row['Shipping: Last Name'] = $customer_shipping_lastname;
+                $row['Shipping: Company'] = $element->customer->delivery_company_name;
+                $row['Shipping: Phone'] = $customer_shipping_phone;
+                $row['Shipping: Address 1'] = $element->customer->delivery_address1;
+                $row['Shipping: Address 2'] = $element->customer->delivery_address2;
+                $row['Shipping: Zip'] = $element->customer->delivery_postcode;
+                $row['Shipping: City'] = $customer_shipping_city;
+                $row['Shipping: Province'] = $element->customer->delivery_county;
+                $row['Shipping: Country'] = $customer_shipping_country;
+                $row['Row #'] = $count;
+                $row['Top Row'] = 1;
+                $row['Line: Type'] = 'Line Item';
+                $row['Line: Title'] = $product->title;
+                $row['Line: Name'] = $product->title;
+                $row['Line: Variant Title'] = $product->summary;
+                $row['Line: SKU'] = $product->reference;
+                $row['Line: Quantity'] = $product->quantity;
+                $row['Line: Price'] = $product->price_inc;
+                $row['Line: Total'] = $product->price_inc;
+                $row['Line: Grams'] = $product->weight;
+                $row['Line: Requires Shipping'] = $requires_shipping;
+                $row['Line: Properties'] = $product->attribute_summary;
+                $row['Line: Taxable'] = true;
+                $row['Line: Tax 1 Title'] = 'VAT';
+                $row['Line: Tax 1 Rate'] = 0.2;
+                $row['Line: Tax 1 Price'] = $product->price_vat;
+                $row['Line: Fulfillment Status'] = $fulfillment_status;
+                $row['Fulfillment: Status'] = $fulfillment_status;
+            } else {
+                # Product rows of order
+                $row = $row_order_template;
 
-            $row['Payment: Status'] = $payment_status;
-            $row['Payment: Processing Method'] = $element->payment->payment_type;
-            $row['Order Fulfillment Status'] = $fulfillment_status;
+                $row['Payment: Status'] = $payment_status;
+                $row['Payment: Processing Method'] = $element->payment->payment_type;
+                $row['Order Fulfillment Status'] = $fulfillment_status;
 
-            $row['Row #'] = $count;
-            $row['Line: Type'] = 'Line Item';
-            $row['Line: Title'] = $product->title;
-            $row['Line: Name'] = $product->title;
-            $row['Line: Variant Title'] = $product->summary;
-            $row['Line: SKU'] = $product->reference;
-            $row['Line: Quantity'] = $product->quantity;
-            $row['Line: Price'] = $product->price_inc;
-            $row['Line: Total'] = $product->price_inc;
-            $row['Line: Grams'] = $product->weight;
-            $row['Line: Requires Shipping'] = $requires_shipping;
-            $row['Line: Properties'] = $product->attribute_summary;
-            $row['Line: Taxable'] = true;
-            $row['Line: Tax 1 Title'] = 'VAT';
-            $row['Line: Tax 1 Rate'] = 0.2;
-            $row['Line: Tax 1 Price'] = $product->price_vat;
-            $row['Line: Fulfillment Status'] = $fulfillment_status;
-            $row['Fulfillment: Status'] = $fulfillment_status;
+                $row['Row #'] = $count;
+                $row['Line: Type'] = 'Line Item';
+                $row['Line: Title'] = $product->title;
+                $row['Line: Name'] = $product->title;
+                $row['Line: Variant Title'] = $product->summary;
+                $row['Line: SKU'] = $product->reference;
+                $row['Line: Quantity'] = $product->quantity;
+                $row['Line: Price'] = $product->price_inc;
+                $row['Line: Total'] = $product->price_inc;
+                $row['Line: Grams'] = $product->weight;
+                $row['Line: Requires Shipping'] = $requires_shipping;
+                $row['Line: Properties'] = $product->attribute_summary;
+                $row['Line: Taxable'] = true;
+                $row['Line: Tax 1 Title'] = 'VAT';
+                $row['Line: Tax 1 Rate'] = 0.2;
+                $row['Line: Tax 1 Price'] = $product->price_vat;
+                $row['Line: Fulfillment Status'] = $fulfillment_status;
+                $row['Fulfillment: Status'] = $fulfillment_status;
+            }
+
+            $export[] = $row;
         }
+    } else {
+        # If no products in order
+        $row = $row_order_template;
+
+        $row['Tags'] = 'Imported from vscommerce';
+        $row['Price: Total Line Items'] = $element->order->product_total_inc;
+        //$row['Tax 1: Title'] = 'VAT';
+        //$row['Tax 1: Rate'] = 20;
+        //$row['Tax 1: Price'] = $element->order->grand_total_vat;
+        $row['Tax: Included'] = true;
+        $row['Tax: Total'] = $element->order->grand_total_vat;
+        $row['Price: Total'] = $element->order->grand_total_inc;
+        $row['Payment: Status'] = $payment_status;
+        $row['Payment: Processing Method'] = $element->payment->payment_type;
+        $row['Order Fulfillment Status'] = $fulfillment_status;
+        $row['Customer: Email'] = $element->customer->email_address;
+        $row['Customer: Phone'] = $customer_billing_phone;
+        $row['Customer: First Name'] = $element->customer->billing_firstname;
+        $row['Customer: Last Name'] = $element->customer->billing_lastname;
+        $row['Customer: Tags'] = 'Imported from vscommerce';
+        $row['Customer: Accepts Marketing'] = $accepts_marketing;
+        $row['Billing: First Name'] = $element->customer->billing_firstname;
+        $row['Billing: Last Name'] = $customer_billing_lastname;
+        $row['Billing: Company'] = $element->customer->billing_company_name;
+        $row['Billing: Phone'] = $customer_billing_phone;
+        $row['Billing: Address 1'] = $element->customer->billing_address1;
+        $row['Billing: Address 2'] = $element->customer->billing_address2;
+        $row['Billing: Zip'] = $element->customer->billing_postcode;
+        $row['Billing: City'] = $customer_billing_city;
+        $row['Billing: Province'] = $element->customer->delivery_county;
+        $row['Billing: Country'] = $customer_billing_country;
+        $row['Shipping: First Name'] = $element->customer->delivery_firstname;
+        $row['Shipping: Last Name'] = $customer_shipping_lastname;
+        $row['Shipping: Company'] = $element->customer->delivery_company_name;
+        $row['Shipping: Phone'] = $customer_shipping_phone;
+        $row['Shipping: Address 1'] = $element->customer->delivery_address1;
+        $row['Shipping: Address 2'] = $element->customer->delivery_address2;
+        $row['Shipping: Zip'] = $element->customer->delivery_postcode;
+        $row['Shipping: City'] = $customer_shipping_city;
+        $row['Shipping: Province'] = $element->customer->delivery_county;
+        $row['Shipping: Country'] = $customer_shipping_country;
+        $row['Row #'] = $count;
+        $row['Top Row'] = 1;
+        $row['Line: Type'] = 'Line Item';
+        $row['Line: Title'] = 'Charge';
+        #$row['Line: Name'] = $product->title;
+        #$row['Line: Variant Title'] = $product->summary;
+        #$row['Line: SKU'] = $product->reference;
+        $row['Line: Quantity'] = 1;
+        $row['Line: Price'] = $element->order->grand_total_inc;
+        $row['Line: Total'] = $element->order->grand_total_inc;
+        #$row['Line: Grams'] = $product->weight;
+        #$row['Line: Requires Shipping'] = $requires_shipping;
+        #$row['Line: Properties'] = $product->attribute_summary;
+        $row['Line: Taxable'] = true;
+        #$row['Line: Tax 1 Title'] = 'VAT';
+        #$row['Line: Tax 1 Rate'] = 0.2;
+        #$row['Line: Tax 1 Price'] = $product->price_vat;
+        $row['Line: Fulfillment Status'] = $fulfillment_status;
+        $row['Fulfillment: Status'] = $fulfillment_status;
 
         $export[] = $row;
     }

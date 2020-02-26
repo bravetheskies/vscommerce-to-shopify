@@ -3,8 +3,13 @@
 function lookup_country($country) {
     $country_lookup = array(
         'UK - Mainland' => 'United Kingdom',
+        'UK - Northern Ireland' => 'United Kingdom',
+        'UK - Non Mainland' => 'United Kingdom',
+        'Republic Of Ireland' => 'Ireland',
         'USA' => 'United States of America',
-        'UAE' => 'United Arab Emirates'
+        'UAE' => 'United Arab Emirates',
+        'Russia' => 'Russian Federation',
+        'Slovakia' => 'Slovakia (Slovak Republic)'
     );
 
     if (array_key_exists((string)$country, $country_lookup)) {
@@ -218,7 +223,7 @@ function get_country_code_array() {
         'PH' => 'Philippines',
         'PN' => 'Pitcairn Islands',
         'PL' => 'Poland',
-        'PT' => 'Portugal, Portuguese Republic',
+        'PT' => 'Portugal',
         'PR' => 'Puerto Rico',
         'QA' => 'Qatar',
         'RE' => 'Reunion',
@@ -254,7 +259,7 @@ function get_country_code_array() {
         'SJ' => 'Svalbard & Jan Mayen Islands',
         'SZ' => 'Swaziland',
         'SE' => 'Sweden',
-        'CH' => 'Switzerland, Swiss Confederation',
+        'CH' => 'Switzerland',
         'SY' => 'Syrian Arab Republic',
         'TW' => 'Taiwan',
         'TJ' => 'Tajikistan',
