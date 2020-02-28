@@ -79,6 +79,7 @@ foreach ($data as $row) {
     $country = null;
     if (array_key_exists('Country', $row)) {
         $country = lookup_country($row['Country']);
+        $country_code = country_name_to_code($country);
     }
 
     $export[] = array(
@@ -114,7 +115,7 @@ foreach ($data as $row) {
         $row['County'], // Address Province
         null, // Address Province Code
         $country, // Address Country
-        null, // Address Country Code
+        $country_code, // Address Country Code
         $row['Post Code'], // Address Zip
         null, // Address Is Default
         null, // Account Activation URL
