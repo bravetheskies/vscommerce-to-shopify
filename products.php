@@ -189,7 +189,7 @@ foreach ($data as $row) {
         $row['Sale Price (Inc VAT)'], // Variant Price
         $row['Price (Inc VAT)'], // Variant Compare At Price
         $row['Cost Price (Inc VAT)'], // Variant Cost
-        null, // Variant Requires Shipping
+        'TRUE', // Variant Requires Shipping
         $variant_taxable, // Variant Taxable
         null, // Variant Tax Code
         $row['EAN'], // Variant Barcode
