@@ -138,6 +138,13 @@ foreach ($data as $row) {
         $published_scope = 'web';
     }
 
+    # Tax
+    if ($row['VAT Rate'] > 0 ) {
+        $variant_taxable = 'TRUE';
+    } else {
+        $variant_taxable = 'FALSE';
+    }
+
     $tags = implode( ', ', $tag_array );
 
     $export[] = array(
@@ -183,7 +190,7 @@ foreach ($data as $row) {
         $row['Price (Inc VAT)'], // Variant Compare At Price
         $row['Cost Price (Inc VAT)'], // Variant Cost
         null, // Variant Requires Shipping
-        null, // Variant Taxable
+        $variant_taxable, // Variant Taxable
         null, // Variant Tax Code
         $row['EAN'], // Variant Barcode
         null, // Variant Image
