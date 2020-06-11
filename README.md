@@ -1,6 +1,6 @@
 # vsCommerce to Shopify
 
-This is a collection of PHP scripts for converting exports from vsCommerce to the Excelify Shopify format. These are quick and baisc PHP scripts to be run in the command line.
+This is a collection of PHP scripts for converting exports from vsCommerce to the Excelify Shopify format. These are quick and dirty PHP scripts to be run in the command line.
 
 ## Orders
 
